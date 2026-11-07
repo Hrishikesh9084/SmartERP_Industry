@@ -6,5 +6,6 @@ backend/**/*.pyc
 backend/smarterp.db
 frontend/node_modules/
 frontend/dist/
+frontend/release/
 .pytest_cache/
 .coverage
