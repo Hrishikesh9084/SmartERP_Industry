@@ -1,0 +1,17 @@
+{
+  "name": "SmartERP Industry",
+  "short_name": "SmartERP",
+  "description": "Multi-tenant ERP for people, inventory, accounting and operations.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f4f6fa",
+  "theme_color": "#111d30",
+  "icons": [
+    {
+      "src": "/SMARTERP_SVG/SMARTERP_Square.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

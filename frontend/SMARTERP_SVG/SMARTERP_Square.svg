@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="360" viewBox="0 0 512 360">
+    <rect width="512" height="360" rx="30" fill="#07112B"/>
+<g transform="translate(82,22) scale(1.02)">
+<defs>
+  <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0%" stop-color="#10D7F4"/>
+    <stop offset="48%" stop-color="#167BFF"/>
+    <stop offset="100%" stop-color="#792BFF"/>
+  </linearGradient>
+</defs>
+<path d="M154 34 C137 17 119 10 98 18 L43 39 C20 48 12 66 20 84
+         C25 96 39 101 53 95 L111 71 C124 66 136 69 144 79
+         C152 89 148 102 135 108 L35 151 C18 158 12 174 21 188
+         C30 203 47 207 64 200 L142 167 C177 152 190 124 178 98
+         C168 77 148 66 126 68 L70 90 C59 94 50 90 47 82
+         C44 74 49 66 59 62 L144 30 C148 28 152 30 154 34 Z"
+      fill="url(#g)"/>
+<path d="M67 112 L67 143 M91 101 L91 135 M115 91 L115 126"
+      stroke="#FFFFFF" stroke-width="10" stroke-linecap="round"/>
+</g>
+<text x="256" y="290" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="58" font-weight="800" letter-spacing="-2" fill="#FFFFFF">SMART<tspan fill="#287BFF">ERP</tspan></text>
+<text x="256" y="325" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="13" letter-spacing="3" fill="#B8C5DC">ENTERPRISE RESOURCE PLANNING</text>
+</svg>

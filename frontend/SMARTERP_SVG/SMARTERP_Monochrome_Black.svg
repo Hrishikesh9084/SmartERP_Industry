@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="650" height="170" viewBox="0 0 650 170"><rect width="650" height="170" fill="#FFFFFF"/>
+<g transform="translate(12,10) scale(.78)">
+<path d="M154 34 C137 17 119 10 98 18 L43 39 C20 48 12 66 20 84
+C25 96 39 101 53 95 L111 71 C124 66 136 69 144 79
+C152 89 148 102 135 108 L35 151 C18 158 12 174 21 188
+C30 203 47 207 64 200 L142 167 C177 152 190 124 178 98
+C168 77 148 66 126 68 L70 90 C59 94 50 90 47 82
+C44 74 49 66 59 62 L144 30 C148 28 152 30 154 34 Z" fill="#111827"/>
+<path d="M67 112 L67 143 M91 101 L91 135 M115 91 L115 126"
+stroke="#111827" stroke-width="10" stroke-linecap="round"/>
+</g>
+<text x="178" y="111" font-family="Arial, Helvetica, sans-serif" font-size="70" font-weight="800" letter-spacing="-3" fill="#111827">SMARTERP</text>
+</svg>
