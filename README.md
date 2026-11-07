@@ -80,6 +80,23 @@ npm run desktop:build
 DMG/ZIP builds on macOS. Signing certificates and store accounts are required
 before distributing production packages.
 
+### Deploying the API for mobile stores
+
+The repository includes a Render Blueprint at [`render.yaml`](./render.yaml).
+To create the public API required by Android and iOS:
+
+1. Push this repository to GitHub.
+2. In Render, choose **New > Blueprint**, select the repository, and apply
+   `render.yaml`.
+3. Enter the requested SMTP, Twilio, and super-admin secrets in Render.
+4. Wait for the service health check to pass at `/health`.
+5. Copy the generated `https://smarterp-api-....onrender.com` URL into
+   `frontend/.env` as `VITE_API_URL`.
+6. Run `npm run mobile:sync` before creating signed Android and iOS releases.
+
+Do not put provider secrets in `render.yaml`, source control, or the mobile
+bundle. The Blueprint marks those values as secret inputs.
+
 ## Production with Docker Compose
 1. Copy root `.env.example` to `.env`; set a long random `POSTGRES_PASSWORD`.
 2. Configure `backend/.env` with `APP_ENV=production`, a unique `SECRET_KEY`, PostgreSQL URL (Compose overrides it), SMTP/Twilio/payment credentials and frontend origin.
