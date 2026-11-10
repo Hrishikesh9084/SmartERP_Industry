@@ -9,3 +9,4 @@ frontend/dist/
 frontend/release/
 .pytest_cache/
 .coverage
+

@@ -5,7 +5,22 @@ from dotenv import load_dotenv
 load_dotenv(Path(__file__).resolve().parents[1] / ".env")
 
 APP_ENV = os.getenv("APP_ENV", "development")
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./smarterp.db")
+
+
+def normalize_database_url(value: str) -> str:
+    """Use the installed psycopg v3 driver for generic PostgreSQL URLs."""
+    if value.startswith(("postgres://", "postgresql://")):
+        return value.replace("postgres://", "postgresql+psycopg://", 1).replace(
+            "postgresql://", "postgresql+psycopg://", 1
+        )
+    if value.startswith("postgresql+psycopg2://"):
+        return value.replace("postgresql+psycopg2://", "postgresql+psycopg://", 1)
+    return value
+
+
+DATABASE_URL = normalize_database_url(
+    os.getenv("DATABASE_URL", "sqlite:///./smarterp.db")
+)
 SECRET_KEY = os.getenv("SECRET_KEY", "DEV_ONLY_CHANGE_ME")
 ACCESS_TOKEN_MINUTES = int(os.getenv("ACCESS_TOKEN_MINUTES", "60"))
 FRONTEND_ORIGIN = os.getenv("FRONTEND_ORIGIN", "http://localhost:5173")
