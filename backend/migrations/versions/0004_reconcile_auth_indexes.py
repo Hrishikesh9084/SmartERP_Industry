@@ -31,7 +31,6 @@ def upgrade():
             server_default=sa.text("CURRENT_TIMESTAMP"),
         )
 
-
 def downgrade():
     with op.batch_alter_table("email_otps") as batch:
         batch.alter_column(

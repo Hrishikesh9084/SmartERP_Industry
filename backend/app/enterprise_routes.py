@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func
 from .database import get_db
 from .dependencies import company_user, current_user
-from .models import User, Product
+from .models import Company, User, Product
 from .models_enterprise import (Employee, Attendance, LeaveRequest, PayrollRun, Payslip, Account, JournalEntry, JournalLine, Supplier, PurchaseOrder, PurchaseOrderLine, RolePermission, PhoneOTP, AuditLog)
 from .permissions import require_permission
 from .security import new_otp, otp_digest
@@ -140,6 +140,27 @@ def set_permission(data:PermissionIn,user:User=Depends(require_permission('rbac.
 @router.get('/admin/permissions')
 def list_permissions(user:User=Depends(require_permission('rbac.manage')),db:Session=Depends(get_db)):
     return db.query(RolePermission).filter_by(company_id=user.company_id).order_by(RolePermission.role,RolePermission.permission).all()
+
+@router.get('/company-admin/users')
+def company_users(user:User=Depends(require_permission('rbac.manage')),db:Session=Depends(get_db)):
+    return db.query(User).filter_by(company_id=user.company_id).order_by(User.created_at.desc()).all()
+
+@router.get('/company-admin/audit-logs')
+def company_audit_logs(user:User=Depends(require_permission('audit.read')),db:Session=Depends(get_db)):
+    return db.query(AuditLog).filter_by(company_id=user.company_id).order_by(AuditLog.created_at.desc()).limit(200).all()
+
+@router.delete('/company-admin/workspace')
+def delete_workspace(user:User=Depends(require_permission('workspace.delete')),db:Session=Depends(get_db)):
+    if user.role != 'owner':
+        raise HTTPException(403, 'Only the company administrator can delete this workspace')
+    company=db.query(Company).filter_by(id=user.company_id).first()
+    if not company:
+        raise HTTPException(404, 'Company workspace not found')
+    company.deleted_at=datetime.utcnow()
+    company.deleted_by=user.id
+    company.is_active=False
+    db.commit()
+    return {'success':True,'deleted':True,'message':'Workspace marked for deletion.'}
 
 @router.post('/auth/phone/request-otp')
 def request_phone_otp(request:Request,user:User=Depends(current_user),db:Session=Depends(get_db)):

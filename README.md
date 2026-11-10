@@ -33,6 +33,10 @@ Copy-Item .env.example .env
 # postgresql+psycopg scheme and keep sslmode=require.
 # Create/update schema using migrations (recommended)
 alembic upgrade head
+# Provision the platform Super Admin from SUPERADMIN_EMAIL/PASSWORD in .env
+python scripts\provision_superadmin.py
+# Optional: add repeatable development data for dashboard/module testing
+python scripts\seed_demo_data.py
 uvicorn app.main:app --reload
 
 API docs: http://localhost:8000/docs
@@ -44,6 +48,10 @@ npm install
 npm run dev
 ```
 Frontend: http://localhost:5173
+
+The development seed is disabled when `APP_ENV=production`. It creates the
+`demo@smarterp.local` account with password `DemoPassword123!`; change or
+remove this development-only account before using a shared environment.
 
 ## Installable desktop and mobile apps
 
@@ -68,6 +76,29 @@ projects. After `npm run mobile:sync`, set Android `minSdk = 33` in the generate
 `android/variables.gradle` and iOS `IPHONEOS_DEPLOYMENT_TARGET = 16.0` in the
 generated Xcode project. Open the projects with `npm run mobile:android` or
 `npm run mobile:ios`, then build signed release packages in Android Studio/Xcode.
+
+### Publishing the Android app on Google Play
+
+The Android project is already created at `frontend/android` with application ID
+`com.smarterp.industry`. A Windows `.exe` cannot be uploaded to Google Play; the
+Play Store release must be an Android App Bundle (`.aab`).
+
+Before creating a release:
+
+1. Install Android Studio and a supported JDK, then set `JAVA_HOME`.
+2. Deploy the FastAPI backend at a public HTTPS URL.
+3. Set that URL in `frontend/.env`:
+   `VITE_API_URL=https://api.example.com`
+4. Run `npm run mobile:sync`.
+5. Open `frontend/android` in Android Studio.
+6. Create a private upload key, configure a signed **release** build, and run
+   **Build > Generate Signed Bundle / APK > Android App Bundle**.
+7. Upload the generated `.aab` to Google Play Console, complete the store
+   listing, privacy policy, data-safety form, content rating, and testing track.
+
+Do not use `localhost` for a store build: it refers to the individual user's
+phone, not the development computer. Do not commit `backend/.env`, signing keys,
+or provider credentials.
 
 For desktop development and release:
 
@@ -104,22 +135,42 @@ bundle. The Blueprint marks those values as secret inputs.
 4. Put a TLS reverse proxy (Caddy/Nginx/managed ingress) in front; restrict database/Redis to private networking.
 
 ## Super Admin
-Set `SUPERADMIN_EMAIL` and `SUPERADMIN_PASSWORD` in `backend/.env` before first boot. The account is provisioned once. Changing environment variables later does not rotate an existing admin password; use a proper admin password-reset workflow before production. Never use the sample credentials.
+Set `SUPERADMIN_EMAIL` and `SUPERADMIN_PASSWORD` in `backend/.env` before first boot.
+The account is provisioned with the password currently configured there. The
+development fallback is only used when those variables are absent. Changing
+environment variables later requires rerunning `python scripts\provision_superadmin.py`
+to rotate the existing account password. Never use sample credentials in a
+shared or production environment.
+
+Super Admin and company administrator accounts are stored in the `users` table:
+Super Admin uses `role=super_admin` and no company; a company administrator uses
+`role=owner` and is linked to a company. There are intentionally no separate
+administrator tables because authentication and role checks are centralized.
+
+Workspace deletion is a soft delete. A company owner can delete their own
+workspace from the Admin Panel, while Super Admin can delete or restore any
+workspace. Business records are retained and deleted workspaces cannot sign in
+or access company APIs.
 
 ## Integrations
-- SMTP: set `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM`, `SMTP_USE_TLS`, and `SMTP_USE_SSL`. For Resend, use `smtp.resend.com`, port `465`, username `resend`, your Resend API key as `SMTP_PASSWORD`, and a sender address verified in Resend. Use `SMTP_USE_SSL=true` and `SMTP_USE_TLS=false`.
+- SMTP: set `SMTP_HOST=smtp.gmail.com`, `SMTP_PORT=587`, your Gmail address as `SMTP_USER`, a 16-character Google app password as `SMTP_PASSWORD`, and `SMTP_FROM=SmartERP <your-gmail-address>`. Use `SMTP_USE_TLS=true` and `SMTP_USE_SSL=false`. Google 2-Step Verification must be enabled before creating the app password; never use or commit your normal Gmail password.
+- OTP emails are sent as branded HTML with a plain-text fallback and are marked as automatically generated. Set `SMTP_REPLY_TO` only if replies should go to a monitored address.
 - Twilio: set `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_FROM_NUMBER`. SMS verification only works after provider configuration and an E.164 phone number.
 - Razorpay: configure `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`, `RAZORPAY_WEBHOOK_SECRET`; configure webhook URL `/api/billing/webhooks/razorpay`.
 - Stripe: configure `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`; configure webhook URL `/api/billing/webhooks/stripe`.
 
 ## Main API routes
+- `/api/dashboard`, `/api/products`, `/api/customers`, `/api/sales`, `/api/expenses`
 - `/api/hr/employees`, `/api/hr/attendance`, `/api/hr/leaves`, `/api/hr/payroll/runs`
 - `/api/accounting/accounts`, `/api/accounting/journals`, `/api/accounting/trial-balance`
 - `/api/purchasing/suppliers`, `/api/purchasing/orders`, `/api/purchasing/orders/{id}/receive`
 - `/api/admin/permissions`
 - `/api/auth/phone/request-otp`, `/api/auth/phone/verify`
 - `/api/billing/checkout`, `/api/billing/subscriptions`
-- Existing `/api/ai/*` analytics routes
+- `/api/ai/*` analytics and forecasting routes
+
+The FastAPI application registers these route groups from `backend/app/main.py`;
+they are tenant-scoped through the authenticated user and company permissions.
 
 ## RBAC permissions
 Examples: `hr.employees.read`, `hr.employees.write`, `hr.attendance.read`, `hr.attendance.write`, `hr.leave.read`, `hr.leave.write`, `hr.leave.approve`, `payroll.read`, `payroll.run`, `accounting.read`, `accounting.accounts.write`, `accounting.journals.write`, `purchasing.read`, `purchasing.suppliers.write`, `purchasing.orders.write`, `purchasing.receive`, `rbac.manage`. Owners bypass these checks. Configure non-owner roles via `PUT /api/admin/permissions`.

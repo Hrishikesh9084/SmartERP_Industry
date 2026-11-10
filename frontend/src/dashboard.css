@@ -1,0 +1,25 @@
+.dashboard-grid{display:grid;grid-template-columns:1.35fr 1fr;gap:15px;margin-bottom:15px}
+.dashboard-grid-three{grid-template-columns:repeat(3,1fr)}
+.panel-heading{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.panel-heading>div{display:flex;align-items:center;gap:8px;color:#5669df}
+.panel-heading h3{color:#172338;margin:0}
+.panel-heading span{color:#8b97a8;font-size:11px}
+.bar-chart{height:190px;display:flex;align-items:end;justify-content:space-around;gap:12px;padding:15px 8px 0;border-bottom:1px solid #edf0f5}
+.bar-item{height:100%;display:flex;flex-direction:column;justify-content:end;align-items:center;gap:8px;flex:1}
+.bar-track{height:150px;width:100%;max-width:34px;background:#eef1fc;border-radius:8px 8px 3px 3px;display:flex;align-items:end;overflow:hidden}
+.bar-fill{width:100%;background:linear-gradient(180deg,#6579ef,#36c4ae);border-radius:8px 8px 3px 3px;transition:height .3s}
+.bar-item small{font-size:10px;color:#929daf}
+.activity-row,.compact-row,.approval-card{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #edf0f5;font-size:12px}
+.activity-row:last-child,.compact-row:last-child{border-bottom:0}
+.activity-row>div{display:grid;gap:4px;flex:1}
+.activity-row small,.compact-row small{display:block;color:#909bad;font-size:10px;margin-top:3px}
+.activity-row strong{font-size:11px}.positive{color:#2e9b71}.negative{color:#d46666}
+.activity-icon{display:grid;place-items:center;width:30px;height:30px;border-radius:9px;background:#eef1ff;color:#6174e7}
+.activity-icon.expense{background:#fff1f0;color:#d46666}
+.pill{padding:4px 8px;border-radius:99px;background:#eff3ff;color:#5266df;font-size:11px;font-weight:700}
+.pill.warning{background:#fff5e8;color:#c47b20}
+.compact-row{justify-content:space-between}.compact-row>b{font-size:11px;color:#c47b20}
+.approval-card{justify-content:space-between}.approval-card b{font:800 20px Manrope;color:#5367dd}
+.expense-total{font:800 28px Manrope;color:#172338;margin:8px 0}.expense-total+p{margin:0}
+.panel-heading svg{color:#6174e7}
+@media(max-width:850px){.dashboard-grid,.dashboard-grid-three{grid-template-columns:1fr}}

@@ -43,7 +43,7 @@
     "productName": "SmartERP Industry",
     "files": ["dist/**/*", "electron/**/*", "package.json"],
     "directories": {"output": "release"},
-    "win": {"target": ["nsis", "portable"]},
+    "win": {"target": ["nsis", "portable"], "signAndEditExecutable": false},
     "mac": {"target": ["dmg", "zip"], "category": "public.app-category.business"},
     "nsis": {"oneClick": false, "perMachine": false}
   }

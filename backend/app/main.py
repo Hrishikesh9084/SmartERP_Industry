@@ -1,10 +1,15 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .auth_routes import router as auth_router
 from .public_auth_routes import router as public_auth_router
 from .phone_login_routes import router as phone_login_router
+from .admin_routes import router as admin_router
+from .ai_routes import router as ai_router
+from .billing_routes import router as billing_router
+from .business_routes import router as business_router
 from .config import FRONTEND_ORIGIN
+from .enterprise_routes import router as enterprise_router
+from .organization_routes import router as organization_router
 
 app = FastAPI(
     title="SmartERP API",
@@ -32,9 +37,14 @@ app.add_middleware(
 )
 
 # Register routers
-app.include_router(auth_router)
 app.include_router(public_auth_router)
 app.include_router(phone_login_router)
+app.include_router(admin_router)
+app.include_router(ai_router)
+app.include_router(billing_router)
+app.include_router(business_router)
+app.include_router(enterprise_router)
+app.include_router(organization_router)
 
 
 @app.get("/")

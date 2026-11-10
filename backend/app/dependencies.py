@@ -21,7 +21,7 @@ def current_user(credentials: HTTPAuthorizationCredentials = Depends(bearer), db
     if user.company_id is not None:
         from .models import Company
         company = db.query(Company).filter(Company.id == user.company_id).first()
-        if company is None or not company.is_active:
+        if company is None or not company.is_active or company.deleted_at is not None:
             raise HTTPException(status_code=403, detail="Company workspace is inactive")
     return user
 

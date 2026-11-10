@@ -1,14 +1,18 @@
+from datetime import datetime, timedelta
+
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
+from .config import DEV_SHOW_OTP, OTP_EXPIRY_MINUTES
 from .database import get_db
 from .models import User
+from .models_enterprise import PhoneOTP
 from .phone_verification import (
     send_phone_otp,
     verify_phone_otp
 )
-from .security import create_token
+from .security import create_token, new_otp, otp_digest
 
 
 router = APIRouter(
@@ -59,6 +63,23 @@ def send_login_otp(
             detail="Your account is inactive."
         )
 
+    if DEV_SHOW_OTP:
+        code = new_otp()
+        db.add(
+            PhoneOTP(
+                user_id=user.id,
+                code_hash=otp_digest(code),
+                expires_at=datetime.utcnow() + timedelta(minutes=OTP_EXPIRY_MINUTES),
+                consumed=False,
+            )
+        )
+        db.commit()
+        return {
+            "success": True,
+            "message": "Development mobile OTP generated.",
+            "otp": code,
+        }
+
     try:
         send_phone_otp(data.phone_number)
 
@@ -95,20 +116,27 @@ def verify_login_otp(
         )
 
     try:
-        approved = verify_phone_otp(
-            data.phone_number,
-            data.otp
-        )
+        if DEV_SHOW_OTP:
+            row = (
+                db.query(PhoneOTP)
+                .filter_by(user_id=user.id, consumed=False)
+                .order_by(PhoneOTP.id.desc())
+                .first()
+            )
+            if not row or row.expires_at < datetime.utcnow() or row.attempts >= 5:
+                raise HTTPException(status_code=400, detail="Invalid or expired OTP.")
+            row.attempts += 1
+            approved = row.code_hash == otp_digest(data.otp)
+            if approved:
+                row.consumed = True
+            db.commit()
+        else:
+            approved = verify_phone_otp(data.phone_number, data.otp)
 
         if not approved:
-            raise HTTPException(
-                status_code=400,
-                detail="Invalid or expired OTP."
-            )
+            raise HTTPException(status_code=400, detail="Invalid or expired OTP.")
 
-        access_token = create_token(
-            data={"sub": str(user.id)}
-        )
+        access_token = create_token(user.id, user.company_id, user.role)
 
         return {
             "message": "Login successful.",
